@@ -6,14 +6,20 @@ Lesson 3
 ### What to Do First?
 Notes:
 
+getwd()
+list.files()
 ***
 
 ### Pseudo-Facebook User Data
 Notes:
 
 ```{r Pseudo-Facebook User Data}
-
+#https://s3.amazonaws.com/udacity-hosted-downloads/ud651/pseudo_facebook.tsv
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+#names provides the output of variables (columns)
+names(pf)
 ```
+#
 
 ***
 
@@ -21,15 +27,18 @@ Notes:
 Notes:
 
 ```{r Histogram of Users\' Birthdays}
-install.packages('ggplot2')
+#install.packages('ggplot2')
 library(ggplot2)
+#adding label for each bin by adding the scale breaks 1 to 31
+qplot(x = dob_day, data = pf) +
+  scale_x_continuous(breaks = 1:31)
 ```
 
 ***
 
 #### What are some things that you notice about this histogram?
 Response:
-
+Unusually large bin for the 1st. 
 ***
 
 ### Moira's Investigation
@@ -58,10 +67,15 @@ Notes:
 
 ***
 ### Faceting
-Notes:
+Notes: You want to do split up your data by one or more variables and plot the subsets of data together.
 
+It splits up the data according to a different variable i.e. below we can see the dataset which is shows the freq of birthdays and with a facet we can see th freq of days per month 
+
+http://www.cookbook-r.com/Graphs/Facets_(ggplot2)/
 ```{r Faceting}
-
+qplot(x = dob_day, data = pf) +
+     scale_x_continuous(breaks = 1:31) +
+     facet_wrap(~dob_month, ncol = 3)
 ```
 
 #### Let’s take another look at our plot. What stands out to you here?
@@ -87,6 +101,8 @@ Notes:
 #### What code would you enter to create a histogram of friend counts?
 
 ```{r Friend Count}
+qplot(x = friend_count, data = pf)
+
 
 ```
 
@@ -97,54 +113,72 @@ Response:
 
 ### Limiting the Axes
 Notes:
+xlim limits the x max to plot
+or scale_x_con with limits does the same
 
 ```{r Limiting the Axes}
+
+qplot(x = friend_count, data = pf, xlim = c(0,1000))
 
 ```
 
 ### Exploring with Bin Width
 Notes:
+Skewed data to the left side of the graph
 
 ***
 
 ### Adjusting the Bin Width
 Notes:
+https://ggplot2.tidyverse.org/reference/scale_continuous.html
 
+binwidth can limit the bin size
+can also add facegrid or facet wrap
 ### Faceting Friend Count
 ```{r Faceting Friend Count}
 # What code would you add to create a facet the histogram by gender?
 # Add it to the code below.
 qplot(x = friend_count, data = pf, binwidth = 10) +
   scale_x_continuous(limits = c(0, 1000),
-                     breaks = seq(0, 1000, 50))
+                     breaks = seq(0, 1000, 50)) +
+  facet_wrap(~gender)
+#can use facet grid too
+#  facet_grid(gender ~ .)
 ```
 
 ***
 
 ### Omitting NA Values
 Notes:
-
+subset data to remove NA - using !is.na(gender) means if in gender there are na's dont include them
+if you use na.omit it removes any row that contains NA, not just for gender
 ```{r Omitting NA Values}
-
+qplot(x = friend_count, data = subset(pf, !is.na(gender)), binwidth = 10) +
+  scale_x_continuous(lim = c(0,1000), breaks = seq(0,1000,50)) + 
+  facet_wrap(~gender)
 ```
 
 ***
 
 ### Statistics 'by' Gender
 Notes:
+by using table(pf$gender) you can see the total number of inputs for each, 
 
 ```{r Statistics \'by\' Gender}
-
+table(pf$gender)
+by(pf$friend_count, pf$gender, summary)
 ```
 
 #### Who on average has more friends: men or women?
 Response:
-
+females
 #### What's the difference between the median friend count for women and men?
 Response:
+Female has 22 more median friends
 
 #### Why would the median be a better measure than the mean?
 Response:
+because the mean includes outliers which can skew the data. median is resistant to change as it marks the halfway point for all data points
 
 ***
 
@@ -152,24 +186,32 @@ Response:
 Notes:
 
 ```{r Tenure}
+qplot(x = tenure, data = pf, color = I('black'), fill = I('#F79420')) +
+  scale_x_continuous(lim = c(0,2000), breaks = seq(0,2000,200))
 
 ```
 
 ***
 
 #### How would you create a histogram of tenure by year?
-
+as tenure is in days we can convert it to years by dividing by 365
 ```{r Tenure Histogram by Year}
-
+qplot(x = tenure/365, data = pf, binwidth = 1) +
+  scale_x_continuous(lim = c(0,10), breaks = seq(0,10,1))
 ```
 
 ***
 
 ### Labeling Plots
 Notes:
+R uses the variables as default labels so you can add labels by using xlab and ylab
 
 ```{r Labeling Plots}
-
+qplot(x = tenure/365, data = pf,
+      xlab = '# years using Facebook',
+      ylab = '# users in sample',
+      color = I('black'), fill = I('#F79420')) +
+  scale_x_continuous(lim = c(0,7), breaks = seq(1,7,1))
 ```
 
 ***
@@ -178,7 +220,14 @@ Notes:
 Notes:
 
 ```{r User Ages}
-
+qplot(x = age, data = pf, binwidth = 5,
+      ylab = '# users in sample',
+      color = I('black'), fill = I('#F79420')) +
+  scale_x_continuous(lim = c()), breaks = seq(0,120,10)
+#+
+#  scale_x_continuous(lim = c(0,7), breaks = seq(1,7,1))
+#qplot(x = friend_count, data = subset(pf, !is.na(gender)), binwidth = 10) +
+#  scale_x_continuous(lim = c(0,1000), breaks = seq(0,1000,50))
 ```
 
 #### What do you notice?
