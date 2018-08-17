@@ -1,3 +1,3 @@
 # R-Projects
 
-123
+Set up repository for the Udacity Data Exploration course
