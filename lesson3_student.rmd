@@ -255,6 +255,7 @@ install.packages("gridExtra") #install grid arrange package
 define the basic graph then create other by adding new layers
 library(gridExtra)
 main= adds title 
+if you have a long tail graph its alwas helpful to use log scaling to be able to see details in the tail
 ```{r Add a Scaling Layer}
 #with titles on the graph use below code
 p1 <- qplot( x=friend_count, data = pf, main = "facebook data")
@@ -287,20 +288,44 @@ qplotlog <- p1 + scale_x_log()
 
 
 ### Frequency Polygons
-
+we can use the same code as when we used facet_wrap but we add the geom to 'freqpoly' and set the colour to differentiate the genders
 ```{r Frequency Polygons}
-
+qplot(x = friend_count, data = subset(pf, !is.na(gender)), binwidth = 10, geom = 'freqpoly', color = gender) +
+    scale_x_continuous(lim = c(0,1000), breaks = seq(0,1000,50))
+    
+##the y= part calculates the proportion
+qplot(x = friend_count, y = ..count../sum(..count..), data = subset(pf, !is.na(gender)), xlab = 'Friend count', ylab = 'Proportion of users with that friend count', binwidth = 10, geom = 'freqpoly', color = gender) +
+    scale_x_continuous(lim = c(0,1000), breaks = seq(0,1000,50))
+    
+    
+# from the code below you can zoom into the tail of the graph and see that when fc is over 800 women have a higher proportion than men in friend count and overtake 
+qplot(x = friend_count, y = ..count../sum(..count..), data = subset(pf, !is.na(gender)), xlab = 'Friend count', ylab = 'Proportion of users with that friend count', binwidth = 10, geom = 'freqpoly', color = gender) +
++     scale_x_continuous(lim = c(400,1000), breaks = seq(0,1000,50))
 ```
 
 ***
 
 ### Likes on the Web
 Notes:
-
+below we see that women overtake men on likes  
 ```{r Likes on the Web}
+qplot(x = likes_received, data = subset(pf, !is.na(gender)), geom = 'freqpoly', color = gender) +
++     scale_x_continuous() +
++     scale_x_log10()
+
+#code below shows the overtaking happens around 29 votes
+qplot(x = www_likes, data = subset(pf, !is.na(gender)), geom = 'freqpoly', color = gender) +
++     scale_x_continuous() +
++     scale_x_log10(lim = c(1,100),breaks = seq(0,1000,10))
+
+#if we want to see the total number we can use aggregate which totals up all of the  
+aggregate(www_likes ~ gender, data = pf, sum)
+
+#alternatively we use by
+by(pf$www_likes, pf$gender, sum)
 
 ```
-
+Implications of above - women give nearly 3 million more likes than men, over double - of interest to marketing teams
 
 ***
 
