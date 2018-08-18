@@ -1,6 +1,7 @@
 Lesson 3
 ========================================================
-
+qplot cheatsheet
+https://github.com/rstudio/cheatsheets/blob/master/data-visualization-2.1.pdf
 ***
 
 ### What to Do First?
@@ -218,21 +219,17 @@ qplot(x = tenure/365, data = pf,
 
 ### User Ages
 Notes:
-
+Can find out the maximum age by using summary(pf), binwidth =1 because its age data
 ```{r User Ages}
-qplot(x = age, data = pf, binwidth = 5,
+qplot(x = age, data = pf, binwidth = 1,
       ylab = '# users in sample',
-      color = I('black'), fill = I('#F79420')) +
-  scale_x_continuous(lim = c()), breaks = seq(0,120,10)
-#+
-#  scale_x_continuous(lim = c(0,7), breaks = seq(1,7,1))
-#qplot(x = friend_count, data = subset(pf, !is.na(gender)), binwidth = 10) +
-#  scale_x_continuous(lim = c(0,1000), breaks = seq(0,1000,50))
+      color = I('black'), fill = I('#F79420'))
+      scale_x_continuous(breaks = seq(0,113,5))
 ```
 
 #### What do you notice?
 Response:
-
+Untrustable data over 90 years old
 ***
 
 ### The Spread of Memes
@@ -247,14 +244,43 @@ Notes:
 
 ### Transforming Data
 Notes:
-
+summary(log10(pf$friend_count +1))
+gives the log 10 of the friend count and to avoid -infinity minimum we add 1 
 ***
 
 ### Add a Scaling Layer
 Notes:
-
+http://lightonphiri.org/blog/ggplot2-multiple-plots-in-one-graph-using-gridextra
+install.packages("gridExtra") #install grid arrange package
+define the basic graph then create other by adding new layers
+library(gridExtra)
+main= adds title 
 ```{r Add a Scaling Layer}
+#with titles on the graph use below code
+p1 <- qplot( x=friend_count, data = pf, main = "facebook data")
+p2 <- qplot(x = log10(friend_count +1), data = pf)
+p3 <- qplot(x = sqrt(friend_count), data = pf)
 
+#using ncol you can arrange the graphs to be in one column or more
+grid.arrange(p1, p2, p3, ncol =1)
+
+#can also use ggplot
+#aes means aesthetic, geom is the type of graph
+p4 <- ggplot(aes(x = friend_count), data = pf) + geom_histogram()
+p5 <- p4 + scale_x_log10()
+p6 <- p4 + scale_x_sqrt()
+
+
+#important to note the difference in scale labelling with 
+
+#qplot gives the log value
+p2 <- qplot(x = log10(friend_count +1), data = pf)
+
+#ggplot gives the actual values 
+p5 <- p4 + scale_x_log10()
+
+#can plot the actual values in qplot by using the original p1 + log layer
+qplotlog <- p1 + scale_x_log()
 ```
 
 ***
