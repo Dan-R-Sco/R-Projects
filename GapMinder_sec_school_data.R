@@ -1,5 +1,6 @@
 setwd("C:/users/daniel.scott/downloads")
 
+# good link for how to tidy data https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf
 #data from https://www.gapminder.org/data/
 
 sec_school <- read.csv("expenditure_per_student_secondary_percent_of_gdp_per_person.csv")
