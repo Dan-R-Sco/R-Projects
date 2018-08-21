@@ -1,3 +1,6 @@
+#
+# goood repo for graph making https://monashbioinformaticsplatform.github.io/r-intro/ggplot.html
+
 setwd("C:/users/daniel.scott/downloads")
 
 # good link for how to tidy data https://s3.amazonaws.com/udacity-hosted-downloads/ud651/DataWranglingWithR.pdf
