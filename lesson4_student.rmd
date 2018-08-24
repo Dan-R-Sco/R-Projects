@@ -14,7 +14,9 @@ helpful when exploring two continuous variables
 
 
 ```{r Scatterplots}
-setwd("W:/daniel.scott/Udacity/Lesson5_TwoVariables")
+
+#setwd("W:/daniel.scott/Udacity/Lesson5_TwoVariables")
+install.packages("ggplot2")
 library(ggplot2)
 # can also use  this to read in data
 #read.delim('pseudo_facebook.tsv')
@@ -109,7 +111,7 @@ Notes:
 its good to see the summary of two variables to ask questions i.e. how does friend count vary with age?
 dpylr lets us split up dataframes and apply function to that section
 ```{r Conditional Means}
-#install.packages('dplyr')
+install.packages('dplyr')
 library(dplyr)
 #filter()
 #groupby()
@@ -149,9 +151,11 @@ head(pf.fc_by_age2)
 ```
 
 Create your plot!
-
+plot av friend count vs age
 ```{r Conditional Means Plot}
-
+#ggplot(aes( x = age, y = friend_count_mean), data = pf.fc_by_age2) #+ geom_point(alpha = 1/10, position = position_jitter(h = 0)) + xlim(13,90)  + coord_trans(y="sqrt")
+library(ggplot2)
+ggplot(data = pf.fc_by_age2,aes(x = age, y =friend_count_median)) + geom_line()
 ```
 
 ***
@@ -160,11 +164,25 @@ Create your plot!
 Notes:
 
 ```{r Overlaying Summaries with Raw Data}
-
+ggplot(aes( x = age, y = friendships_initiated), data = pf) + geom_point(alpha = 1/10, position = position_jitter(h = 0), color = 'orange') + xlim(13,90) +  coord_trans(y="sqrt") +
+geom_line(stat = "summary", fun.y = mean) +
+  #get the 10% quartile use 0.1 in probs and quartile function note the use of fun.args
+geom_line(stat = "summary", fun.y = quantile, fun.args = list(probs = 0.1), linetype =2, color = 'blue') +
+  #90% quantile
+geom_line(stat = "summary", fun.y = quantile, fun.args = list(probs = 0.9), linetype =2, color = 'blue') +
+# add the median line in the fun.y 
+stat_summary(fun.y = median, geom="line", color = "purple")
+  #can add coord_cartesian layers but need to remove the xlim and coord_trans layer in line 167
+  #coord_cartesian(xlim = c(60, 80))
 ```
 
 #### What are some of your observations of the plot?
 Response:
+having more than 1000 friends is rare
+
+90th percentile is well below 1000
+
+35 - 60 year olds have 90th percentile lower than 250
 
 ***
 
@@ -172,20 +190,34 @@ Response:
 See the Instructor Notes of this video to download Moira's paper on perceived audience size and to see the final plot.
 
 Notes:
-
+created histograms to show summary data by creating histogram charts showing how people over/underestimated audience. Clearly see how the majority of facebook users underestimate their audience 
 ***
 
 ### Correlation
 Notes:
-
+http://www.statisticssolutions.com/correlation-pearson-kendall-spearman/
+Rule of thumb, correlation > 0.3 | -0.3< is meaningful, 0.5 is moderate and 0.7 is large
+"Pearson" method measures the relationship between two different variables
 ```{r Correlation}
+with(pf, cor.test(age, friend_count))
 
+#or
+cor.test(pf$age, pf$friend_count, method = "pearson")
+"""Pearson's product-moment correlation
+
+data:  pf$age and pf$friend_count
+t = -8.6268, df = 99001, p-value < 2.2e-16
+alternative hypothesis: true correlation is not equal to 0
+95 percent confidence interval:
+ -0.03363072 -0.02118189
+sample estimates:
+        cor -0.02740737"""
 ```
 
 Look up the documentation for the cor.test function.
 
 What's the correlation between age and friend count? Round to three decimal places.
-Response:
+Response: -0.02740737
 
 ***
 
@@ -193,21 +225,39 @@ Response:
 Notes:
 
 ```{r Correlation on Subsets}
-with(                 , cor.test(age, friend_count))
+with(subset(pf, age <= 70), cor.test(age,friend_count))
+
 ```
 
 ***
 
 ### Correlation Methods
 Notes:
-
+monotonic relationships use spearmen correlation
+https://en.wikipedia.org/wiki/Monotonic_function
+Spearman rank correlation is a non-parametric test that is used to measure the degree of association between two variables
+Kendall rank correlation is a non-parametric test that measures the strength of dependence between two variables.  
 ***
+```{r}
+with(subset(pf, age <= 70), cor.test(age,friend_count, method = "spearmen"))
+
+```
 
 ## Create Scatterplots
 Notes:
-
+There are some extreme outliers in this data set
 ```{r}
+summary(pf$likes_received)
 
+summary(pf$www_likes_received)
+
+quantile(pf$www_likes_received, 0.90)
+
+quantile(pf$likes_received, 0.90)
+
+with(subset(pf, likes_received < 100), cor.test(likes_received,www_likes_received))
+
+ggplot(aes(x=likes_received, y=www_likes_received), data = pf) + geom_point() + xlim(0,300) +ylim(0,100)
 ```
 
 ***
