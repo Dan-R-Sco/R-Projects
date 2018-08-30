@@ -1,0 +1,189 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(ggplot2)
+
+data(diamonds)
+
+ggplot(diamonds, aes(y=price, x=x)) + geom_point()
+```
+
+#find the correlation of price with a number of other variables
+
+```{r}
+cor(x= diamonds$x, y=diamonds$price)
+cor(x= diamonds$y, y=diamonds$price)
+cor(x= diamonds$z, y=diamonds$price)
+```
+
+scateter plot of price vs depth
+
+```{r}
+
+ggplot(diamonds, aes(y=price, x=depth)) + geom_point()
+
+```
+
+
+# Change the code to make the transparency of the
+# points to be 1/100 of what they are now and mark
+# the x-axis every 2 units.
+
+```{r}
+
+ggplot(diamonds, aes(y=price, x=depth)) + geom_point(alpha = 1/100) + scale_x_continuous(breaks = seq(0, 80, by = 2)) + scale_y_continuous(limits = c(0,5000))
+
+```
+
+most Diamonds are between 58 and 64 depth
+
+#find the correlation of price and depth
+
+```{r}
+cor(x= diamonds$price, y=diamonds$depth)
+cor.test(x= as.numeric(diamonds$price), y= as.numeric(diamonds$depth))
+
+```
+From the result it is clear that there is no correlation
+
+
+#Create a scatterplot of price vs carat
+# and omit the top 1% of price and carat values.
+
+```{r}
+ggplot(aes(x = carat, y = price), data = diamonds) + geom_point() + ylim(0, quantile(diamonds$price, 0.99))
+
+```
+
+# Create a scatterplot of price vs. volume (x * y * z).
+# This is a very rough approximation for a diamond's volume.
+
+# Create a new variable for volume in the diamonds data frame.
+# This will be useful in a later exercise.
+
+```{r}
+diamonds$volume <- (diamonds$x * diamonds$y * diamonds$z)
+
+ggplot(aes(x = volume, y = price), data = diamonds) + geom_point() + ylim(0, quantile(diamonds$price, 0.99))
+
+library(plyr)
+#counts number of diamonds with 0 volume
+count(diamonds$volume == 0)
+```
+There are two outliers which have much larger volume than the others plotted and most of the values fall within a small range
+
+# What is the correlation of the price and volume. Excluding volume 0 and those over 800
+
+```{r}
+
+diamonds$volume <- (diamonds$x * diamonds$y * diamonds$z)
+
+with(subset(diamonds, (volume > 0) & (volume <= 800)),cor.test(volume,price))
+
+```
+
+# Subset the data to exclude diamonds with a volume greater than or equal to 800. Also, exclude diamonds
+# with a volume of 0. Adjust the transparency of the points and add a linear model to the plot. (See the
+# Instructor Notes or look up the documentation of geom_smooth() for more details about smoothers.)
+
+```{r}
+
+ggplot(aes(x = volume, y = price), data = subset(diamonds, (volume > 0) & (volume <= 800))) + geom_point() + geom_smooth()
+
+```
+
+The model would not be a good fit because of the downwards trend as the volume increases which is counter logical. It seems that some outliers are effecting the effectiveness of the model when the volume is >400.
+
+# Use the function dplyr package to create a new data frame containing info on diamonds by clarity.
+# Name the data frame diamondsByClarity. The data frame should contain the following variables in this order.
+#       (1) mean_price
+#       (2) median_price
+#       (3) min_price
+#       (4) max_price
+#       (5) n
+# where n is the number of diamonds in each level of clarity.
+
+```{r}
+
+library(dplyr)
+#age_groups <- group_by(pf, age_with_months)
+diamondsByClarity <- diamonds %>%
+                    group_by(clarity)%>%
+                    summarise(mean_price = mean(price),
+                    median_price = median(price),
+                    min_price = min(price),
+                    max_price = max(price),
+                    n = n())
+  
+head(diamondsByClarity)
+
+```
+
+# We’ve created summary data frames with the mean price
+# by clarity and color. You can run the code in R to
+# verify what data is in the variables diamonds_mp_by_clarity
+# and diamonds_mp_by_color.
+#Write additional code to create two bar plots on one output image using the grid.arrange() function from the package gridExtra.
+
+
+```{r}
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+
+diamonds_by_cut <- group_by(diamonds, cut)
+diamonds_mp_by_cut <- summarise(diamonds_by_cut, mean_price = mean(price))
+
+str(diamonds_mp_by_clarity)
+
+library(gridExtra)
+#age_groups <- group_by(pf, age_with_months)
+
+p1 <- ggplot(data=diamonds_mp_by_color, aes(x=color, y=mean_price)) +
+  geom_bar(stat="identity")
+p2 <- ggplot(data=diamonds_mp_by_clarity, aes(x=clarity, y=mean_price)) +
+  geom_bar(stat="identity")
+p3 <- ggplot(data=diamonds_mp_by_cut, aes(x=cut, y=mean_price)) +
+  geom_bar(stat="identity")
+  
+  grid.arrange(p2, p1, p3, ncol =1)
+```
+From the bar charts you can see that the clarity has a high impact on price where as the color has less so. Mean price tends to decrease as clarity improves. The same can be said for color.
+
+# by clarity and color. You can run the code in R to
+# verify what data is in the variables diamonds_mp_by_clarity
+# and diamonds_mp_by_color.
+#Write additional code to create two bar plots on one output image using the grid.arrange() function from the package gridExtra.
+
+
+```{r}
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+
+str(diamonds_mp_by_clarity)
+
+library(gridExtra)
+#age_groups <- group_by(pf, age_with_months)
+
+p1 <- ggplot(data=diamonds_mp_by_color, aes(x=color, y=mean_price)) +
+  geom_bar(stat="identity")
+p2 <- ggplot(data=diamonds_mp_by_clarity, aes(x=clarity, y=mean_price)) +
+  geom_bar(stat="identity")
+
+grid.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
