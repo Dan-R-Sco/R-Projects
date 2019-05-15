@@ -1,0 +1,52 @@
+"""
+
+
+sources:
+http://www.cubittsmith.co.uk/scraping-weather-data/
+https://backtest-rookies.com/2019/04/19/uk-met-office-climate-data/
+https://jdunkerley.co.uk/2015/09/04/downloading-and-parsing-met-office-historic-station-data-with-alteryx/
+"""
+library(tidyr)
+
+path = "C:/Users/daniel.scott/Desktop/heathrowdata.txt"
+mydata <- read.csv(path, header=FALSE, sep = "", col.names = c("yyyy","mm","tmax_deg","tmin_deg","af_days","rain_mm","sun_hrs"), skip = 7)
+
+#########################
+###### Loading ##########
+#########################
+
+list_of_files <- list.files("C:/Users/daniel.scott/Desktop",pattern = ".txt")
+
+##Alternative is  method
+#path <- list("file1", "file2", "file3")
+#df_list_in <- lapply(path, read.csv)
+
+directory <- "C:/Users/daniel.scott/Desktop/"
+#creates dataframe for each file in list of files and loads into R starting from 7th row (table starts) and into the predetermined format
+for (f in list_of_files){
+  fileName <- f
+  print(fileName)
+  base <- file.path(directory, fileName)
+  data <- read.csv(file = base, header=FALSE, sep = "", col.names = c("yyyy","mm","tmax_deg","tmin_deg","af_days","rain_mm","sun_hrs","Provisional"), skip = 7, quote="\"")
+  assign(paste(fileName), data)
+  fileName <- separate(fileName, sun_hrs, into = c('sun_hrs', 'provisional'), sep = "#")
+  fileName$method <- ifelse(grepl("---",fileName$sun_hrs),'NA', ifelse(grepl("#",fileName$sun_hrs),'Kipp + Zorren', 'Campbell'))
+}
+
+##########################
+###### Cleaning ##########
+##########################
+
+#split provisional - what does provisional mean? 
+separate(heathrowdata.txt, sun_hrs, into = c('sun_hrs', 'provisional'), sep = "#")
+
+#These should both be inside the for loop which adds the method and then splits the column into correct variable 
+#for specific df, records sun recording method
+heathrowdata.txt$method <- ifelse(grepl("---",heathrowdata.txt$sun_hrs),'NA', ifelse(grepl("#",heathrowdata.txt$sun_hrs),'Kipp + Zorren', 'Campbell'))
+#separate(heathrowdata.txt, sun_hrs, into = c('sun_hrs', 'provisional'), sep = "#")
+
+#what is estimated data - how is it estimated? 
+
+#Make columns into their data type
+
+
