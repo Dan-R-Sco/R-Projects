@@ -1,0 +1,28 @@
+require(rgdal)
+require(raster)
+
+#read in shp
+shapefileData <- readOGR()
+
+#read in raster
+rasterfile <- raster("NEON-DS-Field-Site-Spatial-Data/SJER/DigitalTerrainModel/SJER2013_DTM.tif")
+#can accumuate with list.files(path = "WORLDCLIM-rasters", pattern = "tif")
+
+#view raster attributes
+rasterfile
+
+#view CRS
+rasterfile@crs
+
+# view raster extent
+rasterfile@extent
+
+# the distribution of values in the raster
+hist(rasterfile, main="Distribution of elevation values", 
+     col= "purple", 
+     maxpixels=22000000)
+
+#plot raster
+plot(rasterfile, main ="Title")
+
+image(rasterfile) #can add limits of pixels betwen values by using zlim=c() or xlim=c()
